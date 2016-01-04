@@ -1,5 +1,5 @@
 {
-  "name": "color-fn",
+  "name": "color-array",
   "version": "0.0.1",
   "description": "functional colors for CSS styles",
   "main": "lib/index.js",
