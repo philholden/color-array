@@ -6,7 +6,13 @@ import {
   fromHsl,
   fromHsla,
   fromName,
-  fromCss
+  fromCss,
+  toCssHex,
+  toCssRgb,
+  toCssRgba,
+  interpolateCss,
+  darkenCss,
+  lightenCss
 } from '../index'
 import expect from 'expect'
 
@@ -55,5 +61,51 @@ describe('color-fn', function () {
     expect(fromCss('hsl(180, 60%, 50%)')).toEqual([ 51, 204, 204, 1 ])
     expect(fromCss('hsla(180, 60%, 50%, .5)')).toEqual([ 51, 204, 204, .5 ])
     expect(fromCss('pink')).toEqual([ 255, 192, 203, 1 ])
+  })
+
+  it('should convert rgbaArr to CSS hex6', () => {
+    expect(toCssHex([ 255, 255, 255, 1 ])).toEqual('#ffffff')
+  })
+
+  it('should convert rgbaArr to CSS hex6 and limit', () => {
+    expect(toCssHex([ -100, 2550, 255, 1 ])).toEqual('#00ffff')
+  })
+
+  it('should convert rgbaArr to CSS hex6 and round', () => {
+    expect(toCssHex([ 255, 254.5, 255, 1 ])).toEqual('#ffffff')
+  })
+
+
+  it('should convert rgbaArr to CSS rgb', () => {
+    expect(toCssRgb([ 255, 255, 255, 1 ])).toEqual('rgb(255,255,255)')
+  })
+
+  it('should convert rgbaArr to CSS rgb and limit', () => {
+    expect(toCssRgb([ -100, 2550, 255, 1 ])).toEqual('rgb(0,255,255)')
+  })
+
+  it('should convert rgbaArr to CSS rgb and round', () => {
+    expect(toCssRgb([ 255, 254.5, 255, 1 ])).toEqual('rgb(255,255,255)')
+  })
+
+
+  it('should convert rgbaArr to CSS rgba', () => {
+    expect(toCssRgba([ 255, 255, 255, .5 ])).toEqual('rgb(255,255,255,0.5)')
+  })
+
+  it('should convert rgbaArr to CSS rgba and limit', () => {
+    expect(toCssRgba([ -100, 2550, 255, 100 ])).toEqual('rgb(0,255,255,1)')
+  })
+
+  it('should interpolate CSS colors', () => {
+    expect(interpolateCss('#f07', '#0f7', 0.5)).toEqual('#808077')
+  })
+
+  it('should darken CSS colors', () => {
+    expect(darkenCss('#861', 0.5)).toEqual('#443309')
+  })
+
+  it('should lighten CSS colors', () => {
+    expect(lightenCss('#777', 0.5)).toEqual('#bbbbbb')
   })
 })

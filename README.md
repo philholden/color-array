@@ -1,13 +1,17 @@
 # Color-Array
 
-Functions for converting between CSS strings and rgba arrays
+Functions for converting between CSS strings and rgba arrays. Functional rather than object orientated approach.
+
+## Install
 
 ```bash
-npm install --save color-fn
+npm install --save color-array
 ``` 
 
+## Color array from CSS
+
 ```javascript
-import { fromCss } from 'color-fn'
+import { fromCss } from 'color-array'
 
 fromCss('#fFf')                    // [ 255, 255, 255, 1 ]
 fromCss('#1a1a1a')                 // [ 26, 26, 26, 1 ]
@@ -16,31 +20,38 @@ fromCss('rgba(10 , 4, 9, 0.5 )')   // [ 10, 4, 9, .5 ]
 fromCss('hsl(180, 60%, 50%)')      // [ 51, 204, 204, 1 ]
 fromCss('hsla(180, 60%, 50%, .5)') // [ 51, 204, 204, .5 ]
 fromCss('pink')                    // [ 255, 192, 203, 1 ]
-
-
-```
-const test = googlish('over fox "lazy dog"')
-test('the quick brown fox jumps over the lazy dog')
-//true
-
-const test = googlish('over fox "dog lazy"')
-test('the quick brown fox jumps over the lazy dog')
-//false
 ```
 
-By default substrings count as matches and search is case insensitive. This can be changed:
+## Color array to CSS
 
 ```javascript
-let wholeWords = true
-let caseSensitive = true
-googlish('over fox', wholeWords, caseSensitive)
+import {
+  toCss,
+  toCssHex,
+  toCssRgb,
+  toCssRgba
+} from 'color-array'
+
+toCss([ 255, 255, 255, 1 ])        // '#ffffff'
+toCss([ 255, 255, 255, .5 ])       // 'rgba(255,255,255,0.5)'
+toCssHex([ 255, 255, 255 ])        // '#ffffff' 
+toCssRgb([ 255, 255, 255 ])        // 'rgb(255,255,255)'
+toCssRgba([ 255, 255, 255, 1 ])    // 'rgba(255,255,255,1)'
 ```
 
-Ideal for creating filter functions:
+## Interpolate Colors
 
 ```javascript
-const isLazyDog = googlish('"lazy dog"')
-const dogs = ['happy dog', 'lazy dog']
-const lazyDogs = dogs.filter(isLazyDog)
-// ['lazy dog']
+import {
+  interpolateCss,
+  darkenCss,
+  lightenCss,
+} from 'color-array'
+
+interpolateCss('#f07', '0f7')      // '#ffffff'
+darkenCss('#fff', .5)              // 'rgba(255,255,255,0.5)'
+lightenCss('#000', .5)             // '#ffffff' 
 ```
+
+
+
