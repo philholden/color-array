@@ -34,6 +34,8 @@ import {
 
 toCss([ 255, 255, 255, 1 ])        // '#ffffff'
 toCss([ 255, 255, 255, .5 ])       // 'rgba(255,255,255,0.5)'
+
+//force format
 toCssHex([ 255, 255, 255 ])        // '#ffffff' 
 toCssRgb([ 255, 255, 255 ])        // 'rgb(255,255,255)'
 toCssRgba([ 255, 255, 255, 1 ])    // 'rgba(255,255,255,1)'

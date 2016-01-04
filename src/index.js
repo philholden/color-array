@@ -223,15 +223,31 @@ export const interpolateCss = (col1, col2, frac) => {
   return toCss(interpolate(arr1, arr2, frac))
 }
 
+export const darken = (rgbaArr, frac) => {
+  const black = [ 0, 0, 0, rgbaArr[3] ]
+  return toCss(interpolate(rgbaArr, black, frac))
+}
+
 export const darkenCss = (col, frac) => {
   const rgbaArr = fromCss(col)
   const black = [ 0, 0, 0, rgbaArr[3] ]
   return toCss(interpolate(rgbaArr, black, frac))
 }
 
+export const lighten = (rgbaArr, frac) => {
+  const white = [ 255, 255, 255, rgbaArr[3] ]
+  return toCss(interpolate(rgbaArr, white, frac))
+}
+
 export const lightenCss = (col, frac) => {
   const rgbaArr = fromCss(col)
   const white = [ 255, 255, 255, rgbaArr[3] ]
   return toCss(interpolate(rgbaArr, white, frac))
+}
+
+export const luminance = rgbaArr => {
+  const max = Math.max(rgbaArr[0], rgbaArr[1], rgbaArr[2])
+  const min = Math.min(rgbaArr[0], rgbaArr[1], rgbaArr[2])
+  return min + max / 2
 }
 
