@@ -1,5 +1,7 @@
+import colors from 'color-name'
+
 const roll = max => n => (n % max + max) % max
-const limit = (max, min) => n => n < min ? min : n > max ? max : n
+const limit = (min, max) => n => n < min ? min : n > max ? max : n
 const limit255 = limit(0, 255)
 const limit100 = limit(0, 100)
 const roll360 = roll(360)
@@ -9,9 +11,10 @@ let hex3lookup = {}
 let hex6lookup = {}
 
 for (let i = 0; i < 16; i++) {
-  hex3lookup[i.toString(16)] = parseInt('' + i + i, 16)
+  let hex = i.toString(16)
+  hex3lookup[hex] = parseInt('' + hex + hex, 16)
   for (let n = 0; n < 16; n++) {
-    hex6lookup['' + i.toString(16) + n.toString(16)] = i * 16 + n
+    hex6lookup['' + hex + n.toString(16)] = i * 16 + n
   }
 }
 
@@ -21,9 +24,9 @@ const hex6 = { ...hex6lookup }
 const hex3Exp = /^#([\da-f])([\da-f])([\da-f])$/i
 const hex6Exp = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i
 const rgbExp = /^rgb\( *(\d+) *, *(\d+) *, *(\d+) *\)$/i
-const rgbaExp = /^rgba\( *(\d+) *, *(\d+) *,(\d+) *, *(0?\.\d+) *\)$/i
-const hslExp = /^hsl\( *(\d{1,3}) *, *(\d{1,3})% *, *(\d{1,3})% *\)$/i
-const hslaExp = /^hsla\( *(\d{1,3}) *, *(\d{1,3})% *, *(\d{1,3}) *, *(0?\.\d+)% *\)$/i
+const rgbaExp = /^rgba\( *(\d+) *, *(\d+) *, *(\d+) *, *(0?\.\d+) *\)$/i
+const hslExp = /^hsl\( *(\d+) *, *(\d{1,3})% *, *(\d{1,3})% *\)$/i
+const hslaExp = /^hsla\( *(\d+) *, *(\d{1,3})% *, *(\d{1,3})% *, *(0?\.\d+) *\)$/i
 
 const normalize = col => col.split(' ').join('').toLowerCase()
 
@@ -36,23 +39,27 @@ const hue2rgb = (p, q, t) => {
   return p
 }
 
-const hslArrayToRgbArray(h, s, l) {
+const hslVecToRgbVec = (h, s, l) => {
   let r, g, b
 
-  if(s == 0){
+  if(s == 0) {
     r = g = b = l
   } else {
-    var q = l < 0.5 ? l * (1 + s) : l + s - l * s
-    var p = 2 * l - q
+    let q = l < 0.5 ? l * (1 + s) : l + s - l * s
+    let p = 2 * l - q
     r = hue2rgb(p, q, h + 1 / 3)
     g = hue2rgb(p, q, h)
     b = hue2rgb(p, q, h - 1 / 3)
   }
 
-  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
+  return [
+    Math.round(r * 255),
+    Math.round(g * 255),
+    Math.round(b * 255)
+  ]
 }
 
-const rgbArrayToHslArray = (r, g, b) => {
+const rgbVecToHslVec = (r, g, b) => {
   r /= 255, g /= 255, b /= 255
   let max = Math.max(r, g, b), min = Math.min(r, g, b)
   let h, s, l = (max + min) / 2
@@ -62,10 +69,13 @@ const rgbArrayToHslArray = (r, g, b) => {
   } else {
     let  d = max - min
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-    switch(max){
-      case r: h = (g - b) / d + (g < b ? 6 : 0) break
-      case g: h = (b - r) / d + 2 break
-      case b: h = (r - g) / d + 4 break
+    switch(max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0)
+        break
+      case g: h = (b - r) / d + 2
+        break
+      case b: h = (r - g) / d + 4
+        break
     }
     h /= 6
   }
@@ -73,103 +83,101 @@ const rgbArrayToHslArray = (r, g, b) => {
   return [ h, s, l ]
 }
 
-const hslaArrayToRgbaArray = (h, s, l, a) =>  [ ...hslToRgb(h, s, l), a ]
-const rgbaArrayToHslaArray = (r, g, b, a) => [ ...rgbToHsl(h, s, l), a ]
+const hslaVecToRgbaVec = (h, s, l, a) =>  [ ...hslVecToRgbVec(h, s, l), a ]
+const rgbaVecToHslaVec = (r, g, b, a) => [ ...rgbVecToHslVec(r, g, b), a ]
 
-const rgbFromHex3 = col => {
+const _fromHex3 = col => {
   let matches = hex3Exp.exec(col)
   if (matches) {
     return [
       hex3[matches[1]],
       hex3[matches[2]],
-      hex3[matches[3]]
+      hex3[matches[3]],
+      1
     ]
   }
   return null
 }
 
-const rgbFromHex6 = col => {
+const _fromHex6 = col => {
   let matches = hex6Exp.exec(col)
   if (matches) {
     return [
       hex6[matches[1]],
       hex6[matches[2]],
-      hex6[matches[3]]
+      hex6[matches[3]],
+      1
     ]
   }
   return null
 }
 
-const rgbFromRgb = col => {
+export const fromHex3 = col => _fromHex3(col.toLowerCase())
+export const fromHex6 = col => _fromHex6(col.toLowerCase())
+
+export const fromRgb = col => {
   let matches = rgbExp.exec(col)
   if (matches) {
     return [
-      limit255(matches[1]),
-      limit255(matches[2]),
-      limit255(matches[3])
+      limit255(+matches[1]),
+      limit255(+matches[2]),
+      limit255(+matches[3]),
+      1
     ]
   }
   return null
 }
 
-const rgbFromRgb = col => {
-  let matches = rgbExp.exec(col)
-  if (matches) {
-    return [
-      limit255(matches[1]),
-      limit255(matches[2]),
-      limit255(matches[3])
-    ]
-  }
-  return null
-}
-
-const rgbFromRgba = col => {
+export const fromRgba = col => {
   let matches = rgbaExp.exec(col)
   if (matches) {
     return [
-      limit255(matches[1]),
-      limit255(matches[2]),
-      limit255(matches[3]),
-      matches[4]
+      limit255(+matches[1]),
+      limit255(+matches[2]),
+      limit255(+matches[3]),
+      +matches[4]
     ]
   }
   return null
 }
 
-const rgbFromHsl = col => {
+export const fromHsl = col => {
   let matches = hslExp.exec(col)
   if (matches) {
-    return [
-      roll360(matches[1]) / 360,
-      limit100(matches[2]) / 100,
-      limit100(matches[3]) / 100
-    ]
+    return [ ...hslVecToRgbVec(
+      roll360(+matches[1]) / 360,
+      limit100(+matches[2]) / 100,
+      limit100(+matches[3]) / 100
+    ), 1 ]
   }
   return null
 }
 
-const rgbFromHsla = col => {
+export const fromHsla = col => {
   let matches = hslaExp.exec(col)
   if (matches) {
-    return [
-      roll360(matches[1]) / 360,
-      limit100(matches[2]) / 100,
-      limit100(matches[3]) / 100,
-      matches[4]
-    ]
+    return hslaVecToRgbaVec(
+      roll360(+matches[1]) / 360,
+      limit100(+matches[2]) / 100,
+      limit100(+matches[3]) / 100,
+      +matches[4]
+    )
   }
   return null
 }
 
-const rgbFromCss = col => {
+export const fromName = col => {
+  return [ ...colors[col.toLowerCase()], 1 ] || null
+}
+
+export const fromCss = col => {
   col = normalize(col)
-  return rgbFromHex3 ||
-    rgbFromHex6 ||
-    rgbFromRgb ||
-    rgbFromRgba ||
-    rgbFromHsl ||
-    rgbFromHsla ||
-    rgbFromName
+  return _fromHex3(col) ||
+    _fromHex6(col) ||
+    fromRgb(col) ||
+    fromRgba(col) ||
+    fromHsl(col) ||
+    fromHsla(col) ||
+    fromName(col)
 }
 

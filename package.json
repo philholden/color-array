@@ -30,5 +30,8 @@
     "expect": "^1.12.2",
     "mocha": "^2.3.3",
     "rimraf": "^2.4.3"
+  },
+  "dependencies": {
+    "color-name": "^1.1.1"
   }
 }
