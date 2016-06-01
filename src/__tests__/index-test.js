@@ -15,7 +15,7 @@ import {
   toCssHsla,
   interpolateCss,
   darkenCss,
-  lightenCss,
+  lightenCss
 } from '../index'
 import expect from 'expect'
 
