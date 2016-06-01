@@ -29,9 +29,9 @@ export const twoDigitHex = hex => decTohex[hex]
 export const hex3Exp = /^#([\da-f])([\da-f])([\da-f])$/i
 export const hex6Exp = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i
 export const rgbExp = /^rgb\( *(\d+) *, *(\d+) *, *(\d+) *\)$/i
-export const rgbaExp = /^rgba\( *(\d+) *, *(\d+) *, *(\d+) *, *(0?\.\d+) *\)$/i
+export const rgbaExp = /^rgba\( *(\d+) *, *(\d+) *, *(\d+) *, *((1(\.0+)?)|(0?\.\d+)) *\)$/i
 export const hslExp = /^hsl\( *(\d+) *, *(\d{1,3})% *, *(\d{1,3})% *\)$/i
-export const hslaExp = /^hsla\( *(\d+) *, *(\d{1,3})% *, *(\d{1,3})% *, *(0?\.\d+) *\)$/i
+export const hslaExp = /^hsla\( *(\d+) *, *(\d{1,3})% *, *(\d{1,3})% *, *((1(\.0+)?)|(0?\.\d+)) *\)$/i
 
 const normalize = col => col.split(' ').join('').toLowerCase()
 
