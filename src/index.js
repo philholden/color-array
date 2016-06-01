@@ -17,19 +17,21 @@ for (let i = 0; i < 16; i++) {
   hex3lookup[hex] = parseInt('' + hex + hex, 16)
   for (let n = 0; n < 16; n++) {
     hex6lookup['' + hex + n.toString(16)] = i * 16 + n
-    decTohex[i * 16 + n] =  '' + hex + n.toString(16)
+    decTohex[i * 16 + n] = hex + n.toString(16)
   }
 }
 
 const hex3 = { ...hex3lookup }
 const hex6 = { ...hex6lookup }
 
-const hex3Exp = /^#([\da-f])([\da-f])([\da-f])$/i
-const hex6Exp = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i
-const rgbExp = /^rgb\( *(\d+) *, *(\d+) *, *(\d+) *\)$/i
-const rgbaExp = /^rgba\( *(\d+) *, *(\d+) *, *(\d+) *, *(0?\.\d+) *\)$/i
-const hslExp = /^hsl\( *(\d+) *, *(\d{1,3})% *, *(\d{1,3})% *\)$/i
-const hslaExp = /^hsla\( *(\d+) *, *(\d{1,3})% *, *(\d{1,3})% *, *(0?\.\d+) *\)$/i
+
+export const twoDigitHex = hex => decTohex[hex]
+export const hex3Exp = /^#([\da-f])([\da-f])([\da-f])$/i
+export const hex6Exp = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i
+export const rgbExp = /^rgb\( *(\d+) *, *(\d+) *, *(\d+) *\)$/i
+export const rgbaExp = /^rgba\( *(\d+) *, *(\d+) *, *(\d+) *, *(0?\.\d+) *\)$/i
+export const hslExp = /^hsl\( *(\d+) *, *(\d{1,3})% *, *(\d{1,3})% *\)$/i
+export const hslaExp = /^hsla\( *(\d+) *, *(\d{1,3})% *, *(\d{1,3})% *, *(0?\.\d+) *\)$/i
 
 const normalize = col => col.split(' ').join('').toLowerCase()
 
@@ -62,29 +64,29 @@ const hslVecToRgbVec = (h, s, l) => {
   ]
 }
 
-// const rgbVecToHslVec = (r, g, b) => {
-//   r /= 255, g /= 255, b /= 255
-//   let max = Math.max(r, g, b), min = Math.min(r, g, b)
-//   let h, s, l = (max + min) / 2
+export const rgbVecToHslVec = (r, g, b) => {
+  r /= 255, g /= 255, b /= 255
+  let max = Math.max(r, g, b), min = Math.min(r, g, b)
+  let h, s, l = (max + min) / 2
 
-//   if (max == min) {
-//     h = s = 0
-//   } else {
-//     let  d = max - min
-//     s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-//     switch(max) {
-//       case r: h = (g - b) / d + (g < b ? 6 : 0)
-//         break
-//       case g: h = (b - r) / d + 2
-//         break
-//       case b: h = (r - g) / d + 4
-//         break
-//     }
-//     h /= 6
-//   }
+  if (max == min) {
+    h = s = 0
+  } else {
+    let  d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    switch(max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0)
+        break
+      case g: h = (b - r) / d + 2
+        break
+      case b: h = (r - g) / d + 4
+        break
+    }
+    h /= 6
+  }
 
-//   return [ h, s, l ]
-// }
+  return [ h, s, l ]
+}
 
 const hslaVecToRgbaVec = (h, s, l, a) =>  [ ...hslVecToRgbVec(h, s, l), a ]
 //const rgbaVecToHslaVec = (r, g, b, a) => [ ...rgbVecToHslVec(r, g, b), a ]
@@ -191,24 +193,43 @@ export const toCssHex = rgbaArr => (
   decTohex[Math.round(limit255(rgbaArr[2]))]
 )
 
-export const toCssRgb = rgbaArr => (
+export const toCssHex3 = rgbaArr => {
+  const oneChar = c => Math.round(c/0x11).toString(16)
+  const [ r, g, b ] = rgbaArr.map(oneChar)
+  return `#${r}${g}${b}`
+}
+
+export const toCssRgb = (rgbaArr, sp = '') => (
   'rgb(' +
-  Math.round(limit255(rgbaArr[0])) + ',' +
-  Math.round(limit255(rgbaArr[1])) + ',' +
+  Math.round(limit255(rgbaArr[0])) + ',' + sp +
+  Math.round(limit255(rgbaArr[1])) + ',' + sp +
   Math.round(limit255(rgbaArr[2])) + ')'
 )
 
-export const toCssRgba = rgbaArr => (
-  'rgb(' +
-  Math.round(limit255(rgbaArr[0])) + ',' +
-  Math.round(limit255(rgbaArr[1])) + ',' +
+export const toCssRgba = (rgbaArr, sp = '') => (
+  'rgba(' +
+  Math.round(limit255(rgbaArr[0])) + ',' + sp +
+  Math.round(limit255(rgbaArr[1])) + ',' + sp +
   Math.round(limit255(rgbaArr[2])) + ',' +
   limit1(rgbaArr[3]) + ')'
 )
 
-export const toCss = rgbaArr => (
-  rgbaArr[3] === 1 ? toCssHex(rgbaArr) : toCssRgba(rgbaArr)
-)
+export const toCssHsla = (rgbaArr, round = true, sp = '') => {
+  const [ h, s, l ] = rgbVecToHslVec(...rgbaArr)
+  const r = (n) => round ? Math.round(n) : n
+  return `hsla(${r(h * 360)},${sp}${r(s * 100)}%,${sp}${r(l * 100)}%,${rgbaArr[3]})`
+}
+
+export const toCssHsl = (rgbaArr, round = true, sp = '') => {
+  const [ h, s, l ] = rgbVecToHslVec(...rgbaArr)
+  const r = (n) => round ? Math.round(n) : n
+  return `hsl(${r(h * 360)},${sp}${r(s * 100)}%,${sp}${r(l * 100)}%)`
+}
+
+export const toCss = rgbaArr => rgbaArr[3] === 1 ?
+  toCssHex(rgbaArr) :
+  toCssRgba(rgbaArr)
+
 
 export const interpolate = (arr1, arr2, frac) => [
   Math.round(arr1[0] + (arr2[0] - arr1[0]) * frac),
@@ -225,7 +246,7 @@ export const interpolateCss = (col1, col2, frac) => {
 
 export const darken = (rgbaArr, frac) => {
   const black = [ 0, 0, 0, rgbaArr[3] ]
-  return toCss(interpolate(rgbaArr, black, frac))
+  return interpolate(rgbaArr, black, frac)
 }
 
 export const darkenCss = (col, frac) => {
@@ -236,7 +257,7 @@ export const darkenCss = (col, frac) => {
 
 export const lighten = (rgbaArr, frac) => {
   const white = [ 255, 255, 255, rgbaArr[3] ]
-  return toCss(interpolate(rgbaArr, white, frac))
+  return interpolate(rgbaArr, white, frac)
 }
 
 export const lightenCss = (col, frac) => {
@@ -248,6 +269,6 @@ export const lightenCss = (col, frac) => {
 export const luminance = rgbaArr => {
   const max = Math.max(rgbaArr[0], rgbaArr[1], rgbaArr[2])
   const min = Math.min(rgbaArr[0], rgbaArr[1], rgbaArr[2])
-  return min + max / 2
+  return (min + max) / 2
 }
 

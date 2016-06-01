@@ -1,4 +1,5 @@
 import {
+  twoDigitHex,
   fromHex3,
   fromHex6,
   fromRgb,
@@ -10,13 +11,21 @@ import {
   toCssHex,
   toCssRgb,
   toCssRgba,
+  toCssHsl,
+  toCssHsla,
   interpolateCss,
   darkenCss,
-  lightenCss
+  lightenCss,
 } from '../index'
 import expect from 'expect'
 
 describe('color-fn', function () {
+
+  it('should convert dec255 to hex2', () => {
+    expect(twoDigitHex(255)).toEqual('ff')
+    expect(twoDigitHex('255')).toEqual('ff')
+    expect(twoDigitHex(0)).toEqual('00')
+  })
 
   it('should convert from hex3 to rgb vec', () => {
     expect(fromHex3('#fFf')).toEqual([ 255, 255, 255, 1 ])
@@ -90,11 +99,19 @@ describe('color-fn', function () {
 
 
   it('should convert rgbaArr to CSS rgba', () => {
-    expect(toCssRgba([ 255, 255, 255, .5 ])).toEqual('rgb(255,255,255,0.5)')
+    expect(toCssRgba([ 255, 255, 255, .5 ])).toEqual('rgba(255,255,255,0.5)')
   })
 
   it('should convert rgbaArr to CSS rgba and limit', () => {
-    expect(toCssRgba([ -100, 2550, 255, 100 ])).toEqual('rgb(0,255,255,1)')
+    expect(toCssRgba([ -100, 2550, 255, 100 ])).toEqual('rgba(0,255,255,1)')
+  })
+
+  it('should convert rgbaArr to CSS hsl', () => {
+    expect(toCssHsl([ 10, 10, 90, .5 ])).toEqual('hsl(240,80%,20%)')
+  })
+
+  it('should convert rgbaArr to CSS hsla', () => {
+    expect(toCssHsla([ 10, 10, 90, .5 ])).toEqual('hsla(240,80%,20%,0.5)')
   })
 
   it('should interpolate CSS colors', () => {
