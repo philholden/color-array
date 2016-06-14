@@ -1,11 +1,12 @@
 import colors from 'color-name'
 
-const roll = max => n => (n % max + max) % max
-const limit = (min, max) => n => n < min ? min : n > max ? max : n
-const limit255 = limit(0, 255)
-const limit100 = limit(0, 100)
-const limit1 = limit(0, 1)
-const roll360 = roll(360)
+export const roll = max => n => (n % max + max) % max
+export const limit = (min, max) => n => n < min ? min : n > max ? max : n
+export const limit255 = limit(0, 255)
+export const limit15 = limit(0, 15)
+export const limit100 = limit(0, 100)
+export const limit1 = limit(0, 1)
+export const roll360 = roll(360)
 
 //x6 faster than parseInt
 let hex3lookup = {}
